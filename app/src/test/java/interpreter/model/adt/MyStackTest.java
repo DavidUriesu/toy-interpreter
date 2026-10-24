@@ -26,7 +26,7 @@ class MyStackTest {
     }
 
     @Test
-    void poponEmptyStackThrows() {
+    void popOnEmptyStackThrows() {
         IStack<Integer> stack = new MyStack<>();
         assertThrows(ADTException.class, () -> stack.pop());
     }
