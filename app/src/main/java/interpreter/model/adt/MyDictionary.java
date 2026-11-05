@@ -44,4 +44,18 @@ public class MyDictionary<K, V> implements IDictionary<K, V> {
     public String toString() {
         return dictionary.toString();
     }
+
+    @Override
+    public void remove(K key) throws ADTException {
+        if (!isDefined(key)) {
+            throw new ADTException("Key is not defined: " + key);
+        }
+
+        dictionary.remove(key);
+    }
+
+    @Override
+    public Map<K, V> toMap() {
+        return Map.copyOf(dictionary);
+    }
 }

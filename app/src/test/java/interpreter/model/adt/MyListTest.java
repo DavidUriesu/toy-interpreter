@@ -46,4 +46,18 @@ class MyListTest {
         list.add(10);
         assertThrows(ADTException.class, () -> list.get(1));
     }
+
+    @Test
+    void toListReturnsUnmodifiableSnapshotInInsertionOrder() {
+        IList<Integer> list = new MyList<>();
+        list.add(10);
+        list.add(20);
+
+        List<Integer> snapshot = list.toList();
+        list.add(30);
+
+        assertEquals(List.of(10, 20), snapshot);
+        assertEquals(3, list.size());
+        assertThrows(UnsupportedOperationException.class, () -> snapshot.add(40));
+    }
 }
