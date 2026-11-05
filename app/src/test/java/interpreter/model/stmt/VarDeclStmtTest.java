@@ -8,8 +8,10 @@ import interpreter.model.adt.MyList;
 import interpreter.model.adt.MyStack;
 import interpreter.model.type.BoolType;
 import interpreter.model.type.IntType;
+import interpreter.model.type.StringType;
 import interpreter.model.value.BoolValue;
 import interpreter.model.value.IntValue;
+import interpreter.model.value.StringValue;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,5 +47,12 @@ class VarDeclStmtTest {
 
         assertThrows(StatementException.class, () -> duplicate.execute(state));
         assertEquals(new IntValue(10), state.getSymTable().lookup("x"));
+    }
+
+    @Test
+    void stringDeclarationStoresEmptyString() throws MyException {
+        IStmt statement = new VarDeclStmt("filename", new StringType());
+        statement.execute(state);
+        assertEquals(new StringValue(""), state.getSymTable().lookup("filename"));
     }
 }
