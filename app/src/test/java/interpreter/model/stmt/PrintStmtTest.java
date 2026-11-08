@@ -3,9 +3,6 @@ package interpreter.model.stmt;
 import interpreter.exceptions.ExpressionException;
 import interpreter.exceptions.MyException;
 import interpreter.model.PrgState;
-import interpreter.model.adt.MyDictionary;
-import interpreter.model.adt.MyList;
-import interpreter.model.adt.MyStack;
 import interpreter.model.exp.ValueExp;
 import interpreter.model.exp.VarExp;
 import interpreter.model.value.BoolValue;
@@ -16,12 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PrintStmtTest {
 
-    private final PrgState state = new PrgState(
-            new MyStack<>(),
-            new MyDictionary<>(),
-            new MyList<>(),
-            new NopStmt()
-    );
+    private final PrgState state = PrgState.of(new NopStmt());
 
     @Test
     void appendsValuesInOrder() throws MyException {

@@ -3,9 +3,6 @@ package interpreter.model.stmt;
 import interpreter.exceptions.MyException;
 import interpreter.exceptions.StatementException;
 import interpreter.model.PrgState;
-import interpreter.model.adt.MyDictionary;
-import interpreter.model.adt.MyList;
-import interpreter.model.adt.MyStack;
 import interpreter.model.type.BoolType;
 import interpreter.model.type.IntType;
 import interpreter.model.type.StringType;
@@ -17,12 +14,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class VarDeclStmtTest {
-    private final PrgState state = new PrgState(
-            new MyStack<>(),
-            new MyDictionary<>(),
-            new MyList<>(),
-            new NopStmt()
-    );
+    private final PrgState state = PrgState.of(new NopStmt());
 
     @Test
     void integerDeclarationStoresZero() throws MyException {

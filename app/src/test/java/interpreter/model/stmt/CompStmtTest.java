@@ -2,9 +2,6 @@ package interpreter.model.stmt;
 
 import interpreter.exceptions.MyException;
 import interpreter.model.PrgState;
-import interpreter.model.adt.MyDictionary;
-import interpreter.model.adt.MyList;
-import interpreter.model.adt.MyStack;
 import interpreter.model.exp.ValueExp;
 import interpreter.model.value.IntValue;
 import org.junit.jupiter.api.Test;
@@ -19,12 +16,7 @@ class CompStmtTest {
         IStmt second = new PrintStmt(new ValueExp(new IntValue(2)));
         IStmt remaining = new NopStmt();
 
-        PrgState state = new PrgState(
-                new MyStack<>(),
-                new MyDictionary<>(),
-                new MyList<>(),
-                remaining
-        );
+        PrgState state = PrgState.of(remaining);
 
         IStmt compound = new CompStmt(first, second);
 
