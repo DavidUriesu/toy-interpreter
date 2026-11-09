@@ -4,8 +4,10 @@ import interpreter.model.exp.*;
 import interpreter.model.stmt.*;
 import interpreter.model.type.BoolType;
 import interpreter.model.type.IntType;
+import interpreter.model.type.StringType;
 import interpreter.model.value.BoolValue;
 import interpreter.model.value.IntValue;
+import interpreter.model.value.StringValue;
 
 public class Examples {
 
@@ -101,6 +103,52 @@ public class Examples {
                         new CompStmt(
                                 assignA,
                                 new CompStmt(conditional, print)
+                        )
+                )
+        );
+    }
+
+    public static IStmt fileExample(String fileName) {
+        IStmt program = new CloseRFileStmt(new VarExp("varf"));
+
+        program = new CompStmt(new PrintStmt(new VarExp("varc")), program);
+        program = new CompStmt(new ReadFileStmt(new VarExp("varf"), "varc"), program);
+        program = new CompStmt(new PrintStmt(new VarExp("varc")), program);
+        program = new CompStmt(new ReadFileStmt(new VarExp("varf"), "varc"), program);
+        program = new CompStmt(new VarDeclStmt("varc", new IntType()), program);
+        program = new CompStmt(new OpenRFileStmt(new VarExp("varf")), program);
+        program = new CompStmt(
+                new AssignStmt("varf",
+                        new ValueExp(new StringValue(fileName))), program);
+
+        return new CompStmt(
+                new VarDeclStmt("varf", new StringType()), program);
+    }
+
+    public static IStmt example4() {
+        return fileExample("test.in");
+    }
+
+    public static IStmt example5() {
+        IStmt conditional = new IfStmt(
+                new RelationalExp(
+                        RelOp.LT, new VarExp("a"), new VarExp("b")),
+                new PrintStmt(new VarExp("a")),
+                new PrintStmt(new VarExp("b"))
+        );
+
+        return new CompStmt(
+                new VarDeclStmt("a", new IntType()),
+                new CompStmt(
+                        new VarDeclStmt("b", new IntType()),
+                        new CompStmt(
+                                new AssignStmt("a",
+                                        new ValueExp(new IntValue(5))),
+                                new CompStmt(
+                                        new AssignStmt("b",
+                                                new ValueExp(new IntValue(7))),
+                                        conditional
+                                )
                         )
                 )
         );

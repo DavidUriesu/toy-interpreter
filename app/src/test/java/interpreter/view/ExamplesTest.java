@@ -8,7 +8,10 @@ import interpreter.model.value.IntValue;
 import interpreter.repository.Repository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,5 +56,40 @@ class ExamplesTest {
         assertTrue(state.getExeStack().isEmpty());
         assertEquals(1, state.getOut().size());
         assertEquals(new IntValue(2), state.getOut().get(0));
+    }
+
+    @Test
+    void fileExamplePrintsBothNumbersAndClosesFile() throws Exception {
+        Path input = dir.resolve("numbers.in");
+        Files.writeString(input, "15\n50\n");
+
+        PrgState state = run(Examples.fileExample(input.toString()));
+
+        assertEquals(
+                List.of(new IntValue(15), new IntValue(50)),
+                state.getOut().toList());
+        assertTrue(state.getExeStack().isEmpty());
+        assertTrue(state.getFileTable().toMap().isEmpty());
+    }
+
+    @Test
+    void fileExamplePrintsZerosForEmptyFile() throws Exception {
+        Path input = dir.resolve("empty.in");
+        Files.writeString(input, "");
+
+        PrgState state = run(Examples.fileExample(input.toString()));
+
+        assertEquals(
+                List.of(new IntValue(0), new IntValue(0)),
+                state.getOut().toList());
+        assertTrue(state.getFileTable().toMap().isEmpty());
+    }
+
+    @Test
+    void example5PrintsFive() throws MyException {
+        PrgState state = run(Examples.example5());
+
+        assertEquals(List.of(new IntValue(5)), state.getOut().toList());
+        assertTrue(state.getExeStack().isEmpty());
     }
 }
