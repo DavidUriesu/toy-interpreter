@@ -15,3 +15,5 @@ out/
 
 # Ignore macOS files
 .DS_Store
+
+log*.txt

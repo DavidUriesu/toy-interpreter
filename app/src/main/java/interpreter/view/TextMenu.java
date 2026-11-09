@@ -74,7 +74,7 @@ public class TextMenu {
 
         PrgState state = PrgState.of(selectedProgram);
 
-        Controller controller = new Controller(new Repository(state), true);
+        Controller controller = new Controller(new Repository(state, "log.txt"), true);
 
         try {
             controller.allStep();

@@ -81,4 +81,30 @@ public class PrgState {
                 + "\nOut: " + out
                 + "\nFileTable: " + fileTable;
     }
+
+    public String toLogString() {
+        var sb = new StringBuilder();
+
+        sb.append("ExeStack:\n");
+        for (var statement : exeStack.toList()) {
+            sb.append(statement).append("\n");
+        }
+
+        sb.append("SymTable:\n");
+        for (var entry : symTable.toMap().entrySet()) {
+            sb.append(entry.getKey()).append(" --> ").append(entry.getValue()).append("\n");
+        }
+
+        sb.append("Out:\n");
+        for (var value : out.toList()) {
+            sb.append(value).append("\n");
+        }
+
+        sb.append("FileTable:\n");
+        for (var fileName : fileTable.toMap().keySet()) {
+            sb.append(fileName.val()).append("\n");
+        }
+
+        return sb.toString();
+    }
 }

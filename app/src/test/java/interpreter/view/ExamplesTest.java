@@ -7,16 +7,20 @@ import interpreter.model.stmt.IStmt;
 import interpreter.model.value.IntValue;
 import interpreter.repository.Repository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ExamplesTest {
+    @TempDir
+    Path dir;
 
-    private static PrgState run(IStmt program) throws MyException {
+    private PrgState run(IStmt program) throws MyException {
         PrgState state = PrgState.of(program);
 
         Controller controller = new Controller(
-                new Repository(state), false
+                new Repository(state, dir.resolve("log.txt").toString()), false
         );
 
         controller.allStep();

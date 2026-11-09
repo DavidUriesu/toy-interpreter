@@ -10,10 +10,16 @@ import interpreter.model.type.IntType;
 import interpreter.model.value.IntValue;
 import interpreter.repository.Repository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import java.nio.file.Path;
+import interpreter.exceptions.RepositoryException;
+import java.nio.file.Files;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ControllerTest {
+    @TempDir
+    Path dir;
 
     private static PrgState createState(IStmt program) {
         return PrgState.of(program);
@@ -22,7 +28,7 @@ class ControllerTest {
     @Test
     void repositoryReturnsProvidedState() {
         PrgState state = createState(new NopStmt());
-        Repository repository = new Repository(state);
+        Repository repository = new Repository(state, dir.resolve("log.txt").toString());
 
         assertSame(state, repository.getCrtPrg());
     }
@@ -34,7 +40,7 @@ class ControllerTest {
         );
 
         Controller controller = new Controller(
-                new Repository(state), false
+                new Repository(state, dir.resolve("log.txt").toString()), false
         );
 
         assertSame(state, controller.oneStep(state));
@@ -49,7 +55,7 @@ class ControllerTest {
         state.getExeStack().pop();
 
         Controller controller = new Controller(
-                new Repository(state), false
+                new Repository(state, dir.resolve("log.txt").toString()), false
         );
 
         assertThrows(
@@ -68,7 +74,7 @@ class ControllerTest {
         PrgState state = createState(new CompStmt(first, second));
 
         Controller controller = new Controller(
-                new Repository(state), false
+                new Repository(state, dir.resolve("log.txt").toString()), false
         );
 
         controller.oneStep(state);
@@ -97,7 +103,7 @@ class ControllerTest {
         PrgState state = createState(program);
 
         Controller controller = new Controller(
-                new Repository(state), false
+                new Repository(state, dir.resolve("log.txt").toString()), false
         );
 
         controller.allStep();
@@ -120,7 +126,7 @@ class ControllerTest {
         PrgState state = createState(program);
 
         Controller controller = new Controller(
-                new Repository(state), false
+                new Repository(state, dir.resolve("log.txt").toString()), false
         );
 
         assertThrows(
@@ -131,5 +137,64 @@ class ControllerTest {
         assertEquals(0, state.getOut().size());
         assertFalse(state.getSymTable().isDefined("missing"));
         assertFalse(state.getExeStack().isEmpty());
+    }
+
+    @Test
+    void logsInitialStateAndEveryStepWithDisplayDisabled() throws Exception {
+        IStmt program = new CompStmt(
+                new VarDeclStmt("x", new IntType()),
+                new PrintStmt(new VarExp("x"))
+        );
+
+        PrgState state = createState(program);
+        Path log = dir.resolve("log.txt");
+
+        Controller controller = new Controller(
+                new Repository(state, log.toString()), false);
+
+        controller.allStep();
+
+        String contents = Files.readString(log);
+
+        // Initial state + composition + declaration + print = four states.
+        assertEquals(4, contents.lines()
+                .filter(line -> line.equals("ExeStack:"))
+                .count());
+
+        int stack = contents.indexOf("ExeStack:");
+        int symbols = contents.indexOf("SymTable:");
+        int output = contents.indexOf("Out:");
+        int files = contents.indexOf("FileTable:");
+
+        assertTrue(stack >= 0 && stack < symbols
+                && symbols < output && output < files);
+
+        assertTrue(contents.endsWith(
+                state.toLogString() + System.lineSeparator()));
+    }
+
+    @Test
+    void loggingAppendsInsteadOfOverwriting() throws Exception {
+        PrgState state = createState(new NopStmt());
+        Path log = dir.resolve("log.txt");
+        Repository repository = new Repository(state, log.toString());
+
+        repository.logPrgStateExec();
+        String firstWrite = Files.readString(log);
+
+        repository.logPrgStateExec();
+
+        assertEquals(firstWrite + firstWrite, Files.readString(log));
+    }
+
+    @Test
+    void invalidLogPathThrowsRepositoryException() {
+        PrgState state = createState(new NopStmt());
+
+        // A directory cannot be opened as a regular log file.
+        Repository repository = new Repository(state, dir.toString());
+
+        assertThrows(RepositoryException.class,
+                () -> repository.logPrgStateExec());
     }
 }
