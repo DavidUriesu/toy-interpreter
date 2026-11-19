@@ -6,6 +6,7 @@ import interpreter.model.value.IValue;
 import interpreter.model.value.StringValue;
 
 import java.io.BufferedReader;
+import java.util.TreeMap;
 
 public class PrgState {
     private IStack<IStmt> exeStack;
@@ -13,16 +14,19 @@ public class PrgState {
     private IList<IValue> out;
     private IDictionary<StringValue, BufferedReader> fileTable;
     private final IStmt originalProgram;
+    private final IHeap heap;
 
     public PrgState(IStack<IStmt> exeStack,
                      IDictionary<String, IValue> symTable,
                      IList<IValue> out,
                      IDictionary<StringValue, BufferedReader> fileTable,
+                     IHeap heap,
                      IStmt program) {
         this.exeStack = exeStack;
         this.symTable = symTable;
         this.out = out;
         this.fileTable = fileTable;
+        this.heap = heap;
         this.originalProgram = program;
 
         exeStack.push(program);
@@ -62,6 +66,7 @@ public class PrgState {
                 new MyDictionary<>(),
                 new MyList<>(),
                 new MyDictionary<>(),
+                new MyHeap(),
                 program
         );
     }
@@ -105,6 +110,15 @@ public class PrgState {
             sb.append(fileName.val()).append("\n");
         }
 
+        sb.append("Heap:\n");
+        for (var entry : new TreeMap<>(heap.getContent()).entrySet()) {
+            sb.append(entry.getKey()).append(" --> ").append(entry.getValue()).append("\n");
+        }
+
         return sb.toString();
+    }
+
+    public IHeap getHeap() {
+        return heap;
     }
 }

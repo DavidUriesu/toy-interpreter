@@ -2,6 +2,7 @@ package interpreter.model;
 
 import interpreter.exceptions.ADTException;
 import interpreter.model.adt.MyDictionary;
+import interpreter.model.adt.MyHeap;
 import interpreter.model.adt.MyList;
 import interpreter.model.adt.MyStack;
 import interpreter.model.stmt.IStmt;
@@ -34,12 +35,14 @@ class PrgStateTest {
         MyDictionary<String, IValue> symbols = new MyDictionary<>();
         MyList<IValue> output = new MyList<>();
         var files = new MyDictionary<StringValue, BufferedReader>();
-        PrgState state = new PrgState(stack, symbols, output, files, new NopStmt());
+        var heap = new MyHeap();
+        PrgState state = new PrgState(stack, symbols, output, files, heap, new NopStmt());
 
         assertSame(stack, state.getExeStack());
         assertSame(symbols, state.getSymTable());
         assertSame(output, state.getOut());
         assertSame(files, state.getFileTable());
+        assertSame(heap, state.getHeap());
         assertEquals(0, output.size());
         assertFalse(symbols.isDefined("x"));
     }
