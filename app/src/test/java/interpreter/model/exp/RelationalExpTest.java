@@ -4,6 +4,7 @@ import interpreter.exceptions.ExpressionException;
 import interpreter.exceptions.MyException;
 import interpreter.model.adt.IDictionary;
 import interpreter.model.adt.MyDictionary;
+import interpreter.model.adt.MyHeap;
 import interpreter.model.value.BoolValue;
 import interpreter.model.value.IValue;
 import interpreter.model.value.IntValue;
@@ -15,6 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class RelationalExpTest {
+    private final MyHeap heap = new MyHeap();
+
     private final IDictionary<String, IValue> symTable = new MyDictionary<>();
 
     private static IExp num(int value) {
@@ -38,20 +41,20 @@ public class RelationalExpTest {
     })
     void comparesIntegers(RelOp op, int left, int right, boolean expected) throws MyException {
         IExp expression = new RelationalExp(op, num(left), num(right));
-        assertEquals(new BoolValue(expected), expression.eval(symTable));
+        assertEquals(new BoolValue(expected), expression.eval(symTable, heap));
     }
 
     @Test
     void nonIntegerLeftOperandThrows() {
         IExp expression = new RelationalExp(RelOp.LT, new ValueExp(new BoolValue(true)), num(7));
-        ExpressionException error = assertThrows(ExpressionException.class, () -> expression.eval(symTable));
+        ExpressionException error = assertThrows(ExpressionException.class, () -> expression.eval(symTable, heap));
         assertEquals("First operand is not an integer", error.getMessage());
     }
 
     @Test
     void nonIntegerRightOperandThrows() {
         IExp expression = new RelationalExp(RelOp.LT, num(7), new ValueExp(new BoolValue(true)));
-        ExpressionException error = assertThrows(ExpressionException.class, () -> expression.eval(symTable));
+        ExpressionException error = assertThrows(ExpressionException.class, () -> expression.eval(symTable, heap));
         assertEquals("Second operand is not an integer", error.getMessage());
     }
 

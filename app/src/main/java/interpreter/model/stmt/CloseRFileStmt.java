@@ -11,7 +11,7 @@ import java.io.IOException;
 public record CloseRFileStmt(IExp exp) implements IStmt {
     @Override
     public PrgState execute(PrgState state) throws MyException {
-        if (!(exp.eval(state.getSymTable()) instanceof StringValue fileName)) {
+        if (!(exp.eval(state.getSymTable(), state.getHeap()) instanceof StringValue fileName)) {
             throw new StatementException("closeRFile: filename is not a string");
         }
 

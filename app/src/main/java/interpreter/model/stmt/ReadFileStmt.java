@@ -22,7 +22,7 @@ public record ReadFileStmt(IExp exp, String varName) implements IStmt {
             throw new StatementException("readFile: variable is not an integer");
         }
 
-        if (!(exp.eval(symbols) instanceof StringValue fileName)) {
+        if (!(exp.eval(symbols, state.getHeap()) instanceof StringValue fileName)) {
             throw new StatementException("readFile: filename is not a string");
         }
 
