@@ -35,6 +35,13 @@ public class Controller {
         while (!state.getExeStack().isEmpty()) {
             oneStep(state);
             repo.logPrgStateExec();
+
+            var heap = state.getHeap();
+            var roots = GarbageCollector.getAddrFromSymTable(
+                    state.getSymTable().toMap().values());
+            heap.setContent(GarbageCollector.unsafeGarbageCollector(roots, heap.getContent()));
+
+            repo.logPrgStateExec();
             display(state);
         }
     }

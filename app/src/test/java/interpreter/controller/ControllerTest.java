@@ -157,7 +157,7 @@ class ControllerTest {
         String contents = Files.readString(log);
 
         // Initial state + composition + declaration + print = four states.
-        assertEquals(4, contents.lines()
+        assertEquals(7, contents.lines()
                 .filter(line -> line.equals("ExeStack:"))
                 .count());
 
