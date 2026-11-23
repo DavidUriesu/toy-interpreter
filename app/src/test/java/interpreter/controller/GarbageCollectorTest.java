@@ -28,7 +28,7 @@ class GarbageCollectorTest {
     }
 
     @Test
-    void unsafeCollectorDropsAnIndirectlyReachableCell() {
+    void safeCollectorKeepsIndirectlyReachableCells() {
         Map<Integer, IValue> heap = Map.of(
                 1, new IntValue(20),
                 2, new RefValue(1, new IntType()),
@@ -36,8 +36,8 @@ class GarbageCollectorTest {
                 4, new IntValue(99)
         );
 
-        var kept = GarbageCollector.unsafeGarbageCollector(Set.of(2, 3), heap);
+        var kept = GarbageCollector.safeGarbageCollector(Set.of(2, 3), heap);
 
-        assertEquals(Set.of(2, 3), kept.keySet());
+        assertEquals(Set.of(1, 2, 3), kept.keySet());
     }
 }

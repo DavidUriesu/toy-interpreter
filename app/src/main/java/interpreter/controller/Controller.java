@@ -39,7 +39,7 @@ public class Controller {
             var heap = state.getHeap();
             var roots = GarbageCollector.getAddrFromSymTable(
                     state.getSymTable().toMap().values());
-            heap.setContent(GarbageCollector.unsafeGarbageCollector(roots, heap.getContent()));
+            heap.setContent(GarbageCollector.safeGarbageCollector(roots, heap.getContent()));
 
             repo.logPrgStateExec();
             display(state);
