@@ -7,13 +7,18 @@ import interpreter.model.exp.ValueExp;
 import interpreter.model.exp.VarExp;
 import interpreter.model.stmt.*;
 import interpreter.model.type.IntType;
+import interpreter.model.type.RefType;
+import interpreter.model.value.IValue;
 import interpreter.model.value.IntValue;
+import interpreter.model.value.RefValue;
 import interpreter.repository.Repository;
+import interpreter.view.Examples;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Path;
 import interpreter.exceptions.RepositoryException;
 import java.nio.file.Files;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -196,5 +201,53 @@ class ControllerTest {
 
         assertThrows(RepositoryException.class,
                 () -> repository.logPrgStateExec());
+    }
+
+    @Test
+    void example6PrintsReferences() throws MyException {
+        var intType = new IntType();
+
+        assertExampleOutput(Examples.example6(), List.of(
+                new RefValue(1, intType),
+                new RefValue(2, new RefType(intType))
+        ));
+    }
+
+    @Test
+    void example7ReadsNestedReferences() throws MyException {
+        assertExampleOutput(Examples.example7(), List.of(
+                new IntValue(20), new IntValue(25)
+        ));
+    }
+
+    @Test
+    void example8ReadsTheUpdatedHeapValue() throws MyException {
+        assertExampleOutput(Examples.example8(), List.of(
+                new IntValue(20), new IntValue(35)
+        ));
+    }
+
+    @Test
+    void example9KeepsIndirectlyReachableValues() throws MyException {
+        assertExampleOutput(Examples.example9(), List.of(new IntValue(20)));
+    }
+
+    @Test
+    void example10CountsDownToZero() throws MyException {
+        assertExampleOutput(Examples.example10(), List.of(
+                new IntValue(4), new IntValue(3), new IntValue(2),
+                new IntValue(1), new IntValue(0)
+        ));
+    }
+
+    private void assertExampleOutput(IStmt program, List<IValue> expected)
+            throws MyException {
+        PrgState state = createState(program);
+        var repository = new Repository(state, dir.resolve("example.log").toString());
+        var controller = new Controller(repository, false);
+
+        controller.allStep();
+
+        assertEquals(expected, state.getOut().toList());
     }
 }

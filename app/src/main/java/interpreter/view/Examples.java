@@ -4,6 +4,7 @@ import interpreter.model.exp.*;
 import interpreter.model.stmt.*;
 import interpreter.model.type.BoolType;
 import interpreter.model.type.IntType;
+import interpreter.model.type.RefType;
 import interpreter.model.type.StringType;
 import interpreter.model.value.BoolValue;
 import interpreter.model.value.IntValue;
@@ -152,5 +153,101 @@ public class Examples {
                         )
                 )
         );
+    }
+
+    public static IStmt example6() {
+        // Ref int v; new(v, 20); Ref Ref int a; new(a, v); print(v); print(a)
+        var refInt = new RefType(new IntType());
+        var v = new VarExp("v");
+        var a = new VarExp("a");
+
+        return sequence(
+                new VarDeclStmt("v", refInt),
+                new NewStmt("v", new ValueExp(new IntValue(20))),
+                new VarDeclStmt("a", new RefType(refInt)),
+                new NewStmt("a", v),
+                new PrintStmt(v),
+                new PrintStmt(a)
+        );
+    }
+
+    public static IStmt example7() {
+        // Ref int v; new(v, 20); Ref Ref int a; new(a, v);
+        // print(rH(v)); print(rH(rH(a)) + 5)
+        var refInt = new RefType(new IntType());
+        var v = new VarExp("v");
+        var a = new VarExp("a");
+        var readThroughA = new ReadHeapExp(new ReadHeapExp(a));
+
+        return sequence(
+                new VarDeclStmt("v", refInt),
+                new NewStmt("v", new ValueExp(new IntValue(20))),
+                new VarDeclStmt("a", new RefType(refInt)),
+                new NewStmt("a", v),
+                new PrintStmt(new ReadHeapExp(v)),
+                new PrintStmt(new ArithExp(
+                        ArithOp.ADD, readThroughA, new ValueExp(new IntValue(5))))
+        );
+    }
+
+    public static IStmt example8() {
+        // Ref int v; new(v, 20); print(rH(v)); wH(v, 30); print(rH(v) + 5)
+        var readV = new ReadHeapExp(new VarExp("v"));
+
+        return sequence(
+                new VarDeclStmt("v", new RefType(new IntType())),
+                new NewStmt("v", new ValueExp(new IntValue(20))),
+                new PrintStmt(readV),
+                new WriteHeapStmt("v", new ValueExp(new IntValue(30))),
+                new PrintStmt(new ArithExp(
+                        ArithOp.ADD, readV, new ValueExp(new IntValue(5))))
+        );
+    }
+
+    public static IStmt example9() {
+        // Ref int v; new(v, 20); Ref Ref int a; new(a, v);
+        // new(v, 30); print(rH(rH(a)))
+        var refInt = new RefType(new IntType());
+        var v = new VarExp("v");
+        var a = new VarExp("a");
+
+        return sequence(
+                new VarDeclStmt("v", refInt),
+                new NewStmt("v", new ValueExp(new IntValue(20))),
+                new VarDeclStmt("a", new RefType(refInt)),
+                new NewStmt("a", v),
+                new NewStmt("v", new ValueExp(new IntValue(30))),
+                new PrintStmt(new ReadHeapExp(new ReadHeapExp(a)))
+        );
+    }
+
+    public static IStmt example10() {
+        // int v; v = 4; while (v > 0) { print(v); v = v - 1; } print(v)
+        var v = new VarExp("v");
+        var condition = new RelationalExp(
+                RelOp.GT, v, new ValueExp(new IntValue(0)));
+        var decrement = new AssignStmt(
+                "v", new ArithExp(ArithOp.SUB, v, new ValueExp(new IntValue(1))));
+        var body = new CompStmt(new PrintStmt(v), decrement);
+
+        return sequence(
+                new VarDeclStmt("v", new IntType()),
+                new AssignStmt("v", new ValueExp(new IntValue(4))),
+                new WhileStmt(condition, body),
+                new PrintStmt(v)
+        );
+    }
+
+    private static IStmt sequence(IStmt first, IStmt... rest) {
+        if (rest.length == 0) {
+            return first;
+        }
+
+        IStmt program = rest[rest.length - 1];
+        for (int i = rest.length - 2; i >= 0; i--) {
+            program = new CompStmt(rest[i], program);
+        }
+
+        return new CompStmt(first, program);
     }
 }

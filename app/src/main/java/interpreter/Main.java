@@ -18,7 +18,13 @@ public class Main {
                 Examples.example2(),
                 Examples.example3(),
                 Examples.example4(),
-                Examples.example5()
+                Examples.example5(),
+                Examples.example6(),
+                Examples.example7(),
+                Examples.example8(),
+                Examples.example9(),
+                Examples.example10()
+
         );
 
         TextMenu menu = new TextMenu();
